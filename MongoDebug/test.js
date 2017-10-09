@@ -1,10 +1,10 @@
 var path = require("path");
 var mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
-// console.log(User);
+
 var dbURI = "mongodb://localhost/User";
 
-// dbURI, { useMongoClient: true }
+
 mongoose.connect(dbURI, { useMongoClient: true });
 
 mongoose.set("debug", true);
@@ -32,13 +32,46 @@ process.on("SIGINT", function() {
 var User = require("./models/model.js");
 var Deen = new User({
   displayName: "deen john",
-  email: "dj.itbhu@gmail.com"
+  email: "test@gmail.com"
 });
 
 var promise = Deen.save();
 
+
 promise.then(function(doc) {
-  console.log(doc);
+  console.log("After save");
+  console.log(doc.displayName); 
+  var query = User.findOne({ displayName: "deen john" });
+  query.exec(function(err, person) {
+    if (err) return handleError(err);
+    console.log(person);
+  });
 });
 
-//console.log(res);
+// Above code works fine from Mongoose side
+/*
+
+> node test.js
+
+Mongoose default connection open to mongodb://localhost/User
+Mongoose: users.insert({ displayName: 'deen john', email: 'dj.itbhu@gmail.com', _
+id: ObjectId("59dbc3e86798531df4725827"), __v: 0 })
+
+After save
+deen john
+Mongoose: users.findOne({ displayName: 'deen john' }, { fields: {} })
+{ _id: 59dbaec3ff448a1924a3a9c2,
+  displayName: 'deen john',
+  email: 'dj.itbhu@gmail.com',
+  __v: 0 }
+
+*/
+// but doesn't persist in local mongodb
+// in mongoDB shell
+// > show dbs 
+// > use User
+// > db.User.count()   gives 0
+// >  db.User.find()   show nothing 
+
+
+
